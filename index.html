@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Curso Operador de Caixa — Simulador (Offline)</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="nav">
+    <div class="container">
+      <h1>Curso Operador de Caixa</h1>
+      <nav>
+        <a href="#home">Início</a>
+        <a href="#theory">Teoria</a>
+        <a href="#simulator">Simulador</a>
+        <a href="#history">Histórico</a>
+        <a href="#contact">Contactos</a>
+      </nav>
+    </div>
+  </header>
+
+  <div id="offlineBanner" class="offline hidden">A operar offline — algumas funcionalidades em tempo real podem estar limitadas.</div>
+
+  <main>
+    <section id="home" class="hero container">
+      <h2>Aprende na prática: teoria + simulador realista</h2>
+      <p>Curso para operadores de caixa com módulos teóricos e prática em simulador com avaliação e histórico.</p>
+      <div class="cta">
+        <a href="#theory" class="btn">Ver Programa</a>
+        <a href="#simulator" class="btn outline">Abrir Simulador</a>
+      </div>
+    </section>
+
+    <section id="theory" class="container card">
+      <h3>Programa / Teoria</h3>
+      <div class="accordion">
+        <details open>
+          <summary>Módulo 1 — Introdução ao Ponto de Venda</summary>
+          <p>Funções do operador, fluxos de caixa, ética e atendimento ao cliente.</p>
+        </details>
+        <details>
+          <summary>Módulo 2 — Produtos, códigos e etiquetagem</summary>
+          <p>Códigos de barras, categorias, preços e IVA.</p>
+        </details>
+        <details>
+          <summary>Módulo 3 — Operação da Caixa</summary>
+          <p>Abrir/fechar turno, registar vendas, trocos e cancelamentos.</p>
+        </details>
+        <details>
+          <summary>Módulo 4 — Pagamentos e Trocos</summary>
+          <p>Dinheiro, cartões, pagamentos mistos e cálculo de troco com exactidão.</p>
+        </details>
+        <details>
+          <summary>Módulo 5 — Atendimento e Reclamações</summary>
+          <p>Procedimentos de suporte ao cliente e emissão de recibos/cupões.</p>
+        </details>
+      </div>
+    </section>
+
+    <section id="simulator" class="container card">
+      <h3>Simulador Prático</h3>
+      <div class="sim-grid">
+        <div class="panel">
+          <h4>Pesquisar / Adicionar</h4>
+          <input id="searchInput" placeholder="Pesquisar produto por nome ou código" />
+          <div id="productList" class="product-list"></div>
+          <hr />
+          <h4>Modo de Treino</h4>
+          <button id="openScenarios" class="btn">Ver Cenários</button>
+        </div>
+
+        <div class="panel">
+          <h4>Carrinho</h4>
+          <table class="cart" id="cartTable">
+            <thead>
+              <tr><th>#</th><th>Produto</th><th>Qtd</th><th>Preço</th><th>IVA</th><th>Subtotal</th><th></th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+          <div class="cart-actions">
+            <button id="clearCart" class="btn outline">Limpar</button>
+            <button id="saveSession" class="btn">Guardar Sessão</button>
+            <button id="printReceipt" class="btn">Imprimir Recibo</button>
+          </div>
+        </div>
+
+        <div class="panel totals">
+          <h4>Totais</h4>
+          <div class="tot-line"><span>Subtotal:</span><span id="subtotal">€0.00</span></div>
+          <div class="tot-line"><span>IVA:</span><span id="iva">€0.00</span></div>
+          <div class="tot-line total"><span>Total:</span><span id="total">€0.00</span></div>
+
+          <h4>Pagamento</h4>
+          <label><input type="radio" name="payMethod" value="cash" checked> Dinheiro</label>
+          <label><input type="radio" name="payMethod" value="card"> Cartão</label>
+
+          <div id="cashPayment" class="pay-block">
+            <input id="cashReceived" placeholder="Valor recebido (€)" />
+            <div class="tot-line"><span>Troco:</span><span id="change">€0.00</span></div>
+            <button id="completeCash" class="btn">Registar Pagamento</button>
+          </div>
+
+          <div id="cardPayment" class="pay-block hidden">
+            <p>Cartão — regista como pago.</p>
+            <button id="completeCard" class="btn">Registar Pagamento</button>
+          </div>
+
+          <div id="evalResult" class="evaluation hidden"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="history" class="container card">
+      <h3>Histórico de Sessões</h3>
+      <div id="historyList"></div>
+    </section>
+
+    <section id="contact" class="container card">
+      <h3>Contactos</h3>
+      <p>Para personalizar o curso e os cenários contacta: contacto@exemplo.com</p>
+    </section>
+  </main>
+
+  <!-- Scenarios modal -->
+  <div id="scenariosModal" class="modal hidden">
+    <div class="modal-content">
+      <h4>Cenários de Treino</h4>
+      <div id="scenariosList"></div>
+      <button id="closeScenarios" class="btn outline">Fechar</button>
+    </div>
+  </div>
+
+  <!-- Receipt area (for printing) -->
+  <div id="receipt" class="receipt hidden"></div>
+
+  <footer class="container footer">
+    <small>Curso Operador de Caixa — Versão offline</small>
+  </footer>
+
+  <script src="app.js"></script>
+
+  <script>
+    // Registo do Service Worker (só funciona quando servido por http(s) ou localhost)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js').then(reg => {
+          console.log('Service Worker registado:', reg.scope);
+        }).catch(err => {
+          console.warn('Registo do Service Worker falhou:', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
